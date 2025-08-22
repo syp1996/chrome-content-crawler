@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>测试发送功能</title>
+</head>
+<body>
+    <h1>测试发送到后台功能</h1>
+    <button onclick="testSend()">测试发送</button>
+    <div id="result"></div>
+
+    <script>
+        async function testSend() {
+            const testData = {
+                title: "测试笔记",
+                excerpt: "这是一个测试摘要",
+                content: {
+                    html: "<p>测试内容</p>",
+                    text: "测试内容",
+                    source: "测试"
+                },
+                slug: "test-note",
+                status: 0,
+                is_pinned: false,
+                category_id: 0
+            };
+
+            try {
+                const response = await fetch('http://localhost:8000/api/documents/plugin', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(testData)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    document.getElementById('result').innerHTML = `<p style="color: green;">发送成功！响应: ${JSON.stringify(result)}</p>`;
+                } else {
+                    const errorText = await response.text();
+                    document.getElementById('result').innerHTML = `<p style="color: red;">发送失败: HTTP ${response.status} - ${errorText}</p>`;
+                }
+            } catch (error) {
+                document.getElementById('result').innerHTML = `<p style="color: red;">网络错误: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!--
+ * @Author: syp1996 304899670@qq.com
+ * @Date: 2025-06-21 22:13:58
+ * @LastEditors: Yunpeng Shi y.shi27@newcastle.ac.uk
+ * @LastEditTime: 2025-06-26 11:07:38
+ * @FilePath: \cookbook.sidepanel-open\sidepanel-global.html
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="./vue-sidepanel/src/css/sidepanel-global.css">
+</head>
+
+<body>
+    <div class="top-title">笔记</div>
+    <div class="function-line">
+        <div class="function-item" id="select">
+            <span class="icon1"></span>
+            <span class="text">选取</span>
+        </div>
+        <div class="function-item" id="recognize">
+            <span class="icon2"></span>
+            <span class="text">识别</span>
+        </div>
+        <div class="function-item" id="total">
+            <span class="icon3"></span>
+            <span class="text">全文</span>
+        </div>
+    </div>
+    <div class="content-area">
+        <div id="iframe-container" style="width:100%; height:100%"></div>
+    </div>
+    <div class="bottom-menu">
+        <button class="menu-item" id="menu1">发送到后台</button>
+        <!-- <button class="menu-item" id="menu2">菜单2</button> -->
+        <button class="menu-item-save" id="save">保存到本地</button>
+    </div>
+    <script src="./vue-sidepanel/src/js/sidepanel-global.js"></script>
+    <script src="./vue-sidepanel/src/js/sidepanel.js"></script>
+</body>
+
+</html>

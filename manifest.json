@@ -1,0 +1,37 @@
+{
+  "manifest_version": 3,
+  "icons": {
+    "16": "images/bee-128.png",
+    "48": "images/bee-128.png",
+    "128": "images/bee-128.png"
+  },
+  "name": "知识库抓取插件",
+  "version": "1.0",
+  "permissions": [
+    "tabs",
+    "activeTab",
+    "scripting",
+    "sidePanel"
+  ],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "service-worker.js"
+  },
+  "action": {
+    "default_icon": {
+      "16": "images/bee-128.png",
+      "48": "images/bee-128.png",
+      "128": "images/bee-128.png"
+    }
+  },
+  "side_panel": {
+    "default_path": "sidepanel-global.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js","Readability.js","libs/html2canvas.min.js","libs/tesseract.min.js"],
+      "all_frames": true
+    }
+  ]
+}
