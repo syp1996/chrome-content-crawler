@@ -116,6 +116,62 @@
         let statusDiv = null;
         let logArea = null;
 
+        // DOM 转 Markdown 函数
+        function domChildren(node) {
+            return Array.from(node.childNodes).map(domToMarkdown).join('');
+        }
+
+        function domToMarkdown(node) {
+            if (node.nodeType === Node.TEXT_NODE) {
+                return node.textContent.replace(/\s+/g, ' ');
+            }
+            if (node.nodeType !== Node.ELEMENT_NODE) return '';
+
+            const tag = node.tagName.toUpperCase();
+            let md = '';
+
+            switch (tag) {
+                case 'H1': md += '\n# ' + domChildren(node) + '\n\n'; break;
+                case 'H2': md += '\n## ' + domChildren(node) + '\n\n'; break;
+                case 'H3': md += '\n### ' + domChildren(node) + '\n\n'; break;
+                case 'H4': md += '\n#### ' + domChildren(node) + '\n\n'; break;
+                case 'P':
+                    md += domChildren(node).trim() ? domChildren(node).trim() + '\n\n' : '';
+                    break;
+                case 'IMG':
+                    const src = node.getAttribute('src') || '';
+                    const alt = node.getAttribute('alt') || '';
+                    md += `![${alt}](${src})\n\n`;
+                    break;
+                case 'A':
+                    const href = node.getAttribute('href') || '';
+                    md += `[${domChildren(node)}](${href})`;
+                    break;
+                case 'UL':
+                    Array.from(node.children).forEach(li => {
+                        md += '- ' + domToMarkdown(li).trim() + '\n';
+                    });
+                    md += '\n';
+                    break;
+                case 'OL':
+                    Array.from(node.children).forEach((li, i) => {
+                        md += `${i + 1}. ${domToMarkdown(li).trim()}\n`;
+                    });
+                    md += '\n';
+                    break;
+                case 'LI':
+                    md += domChildren(node);
+                    break;
+                case 'BR':
+                    md += '  \n';
+                    break;
+                default:
+                    // 其他标签，递归子节点
+                    md += domChildren(node);
+            }
+            return md;
+        }
+
         function log(message) {
             const timestamp = new Date().toLocaleTimeString();
             logArea.textContent += `[${timestamp}] ${message}\n`;
@@ -215,27 +271,37 @@
                     throw new Error('无法获取iframe内容');
                 }
 
-                // 提取文本内容
-                let content = '';
+                // 生成markdown格式内容
+                let markdownContent = '';
+                Array.from(doc.body.childNodes).forEach(n => {
+                    markdownContent += domToMarkdown(n);
+                });
+
+                // 添加来源信息
+                markdownContent += `\n---\n来自: ${currentTitle}`;
+
+                // 提取纯文本内容用于摘要
+                let plainText = '';
                 Array.from(doc.body.childNodes).forEach(n => {
                     if (n.nodeType === Node.TEXT_NODE) {
-                        content += n.textContent;
+                        plainText += n.textContent;
                     } else if (n.nodeType === Node.ELEMENT_NODE) {
-                        content += n.textContent || '';
+                        plainText += n.textContent || '';
                     }
                 });
 
-                if (!content.trim()) {
+                if (!plainText.trim()) {
                     throw new Error('内容为空，无法发送');
                 }
 
                 // 构造API请求数据
                 const apiData = {
                     title: currentTitle || '笔记',
-                    excerpt: content.substring(0, 200) + (content.length > 200 ? '...' : ''),
+                    excerpt: plainText.substring(0, 200) + (plainText.length > 200 ? '...' : ''),
                     content: {
-                        html: doc.body.innerHTML,
-                        text: content,
+                        markdown: markdownContent,  // 新增markdown格式
+                        html: doc.body.innerHTML,   // 保留html格式以备后用
+                        text: plainText,            // 保留纯文本格式
                         source: currentTitle
                     },
                     slug: currentTitle ? currentTitle.toLowerCase().replace(/[^a-z0-9\u4e00-\u9fa5]/g, '-') : 'note',

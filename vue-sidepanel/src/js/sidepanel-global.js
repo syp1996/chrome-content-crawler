@@ -350,17 +350,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // 提取文本内容
-            let content = '';
+            // 生成markdown格式内容
+            let markdownContent = '';
+            Array.from(doc.body.childNodes).forEach(n => {
+                markdownContent += domToMarkdown(n);
+            });
+
+            // 添加来源信息
+            markdownContent += `\n---\n来自: ${currentTitle}`;
+
+            // 提取纯文本内容用于摘要
+            let plainText = '';
             Array.from(doc.body.childNodes).forEach(n => {
                 if (n.nodeType === Node.TEXT_NODE) {
-                    content += n.textContent;
+                    plainText += n.textContent;
                 } else if (n.nodeType === Node.ELEMENT_NODE) {
-                    content += n.textContent || '';
+                    plainText += n.textContent || '';
                 }
             });
 
-            if (!content.trim()) {
+            if (!plainText.trim()) {
                 alert('内容为空，无法发送');
                 return;
             }
@@ -368,10 +377,11 @@ document.addEventListener('DOMContentLoaded', () => {
             // 构造API请求数据
             const apiData = {
                 title: currentTitle || '笔记',
-                excerpt: content.substring(0, 200) + (content.length > 200 ? '...' : ''), // 截取前200字符作为摘要
+                excerpt: plainText.substring(0, 200) + (plainText.length > 200 ? '...' : ''), // 截取前200字符作为摘要
                 content: {
-                    html: doc.body.innerHTML,
-                    text: content,
+                    markdown: markdownContent,  // 新增markdown格式
+                    html: doc.body.innerHTML,   // 保留html格式以备后用
+                    text: plainText,            // 保留纯文本格式
                     source: currentTitle
                 },
                 slug: currentTitle ? currentTitle.toLowerCase().replace(/[^a-z0-9\u4e00-\u9fa5]/g, '-') : 'note',
